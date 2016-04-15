@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Closp Documentation: Creating a new model</title>
+    <link rel="canonical" href="http://closp.net/pages/new-model/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/default.min.css">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Closp Documentation</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/">Home</a></li>
+                <li
+                ><a href="/archives/">Archives</a></li>
+                
+                <li><a href="/feed.xml">RSS</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="custom-page">
+    <div id="page-header">
+        <h2>Creating a new model</h2>
+    </div>
+    
+    <h2><a name="model"></a>Model</h2><p>In this chapter we will create a new model for blogs and load the posts data from database.</p><h3><a name="migrations&#95;file"></a>Migrations File</h3><p>Migrations are defined as sql statements and stored in: <code>resources/sqlite</code>. You can find the ones for user there.<br /> Create two new files <i>2016-04-15-01-post.up.sql</i> and <i>2016-04-15-01-post.down.sql</i> there.<br /> Add the following content to <i>2016-04-15-01-post.up.sql</i>:</p><pre><code>CREATE TABLE post &#40;
+id INTEGER CONSTRAINT PK&#95;USERRC PRIMARY KEY AUTOINCREMENT NOT NULL,
+title VARCHAR&#40;30&#41;,
+content VARCHAR&#40;30&#41;,
+created&#95;at time,
+draft BOOLEAN DEFAULT 0 NOT NULL&#41;;
+--;;
+INSERT INTO post &#40;&quot;title&quot;, &quot;content&quot;, &quot;draft&quot;&#41; VALUES
+&#40;'First Post', 'First Content', 0&#41;,
+&#40;'Second Post', 'Second Content', 0&#41;,
+&#40;'Third Post', 'Third Content', 0&#41;;
+</code></pre><p>It will create a new table post with the columns</p><ul><li>id - Which is an auto generated primary key</li><li>title - The title of the post</li><li>content - The content of the post</li><li>created_at - The time at which the post was created.</li></ul><p>And it also contains three posts which are seeded into the database.</p><p>The <i>2016-04-15-01-post.down.sql</i> file contains the DROP statement:</p><pre><code>DROP TABLE post;
+</code></pre><p>Now switch to your command line in your blog directory and execute:</p><blockquote><p> lein migrate </p></blockquote><p>The output should look like this:</p><blockquote><p> Migrating #ragtime.jdbc.SqlDatabase{:db-spec {:connection-uri jdbc:sqlite:./db/blog.sqlite}, :migrations-table ragtime_migrations, :url jdbc:sqlite:./db/blog.sqlite, :connection-uri jdbc:sqlite:./db/blog.sqlite, :db {:type :sql, :url jdbc:sqlite:./db/blog.sqlite}, :migrator resources/migrators/sqlite, :seed nil} <br /> Applying 2016-04-15-01.post<br /></p></blockquote><h3><a name="database&#95;namespace"></a>Database Namespace</h3><p>Now to make use of the new database table we will create some clojure code to read from it. Closp uses <a href='http://sqlkorma.com/'>korma</a> for database access.</p><p>First open the <i>entities.clj</i> file in <code>src/clj/foo/example/db</code>. Add two new vars:</p><pre><code>&#40;declare post&#41;
+&#40;defentity post&#41;
+</code></pre>This will map the <i>post</i> table to a korma entity called <i>post</i>.<p>Then create a new file <i>blog.clj</i> in <code>src/clj/foo/example/db</code>.<br /> Add the following namespace declaration:</p><pre><code>&#40;ns foo.example.db.blog
+  &#40;:require &#91;korma.core :refer &#91;select&#93;&#93;
+            &#91;foo.example.db.entities :refer &#91;post&#93;&#93;&#41;&#41;
+</code></pre><p>This imports the <i>select</i> function and the <i>post</i> entity that we just declared.</p><p>Now we will add a function to retrieve all posts:</p><pre><code>&#40;defn get-posts &#91; &#93;
+  &#40;select post&#41;&#41;
+</code></pre><p>This retrieves all rows and all fields from the post table. Korma supports a variety of functions to filter, ecxclude and limit your sql stataments. For more information, please look at the korma docs.</p><h3><a name="routes&#95;namespace"></a>Routes Namespace</h3><p>The last step is to call our database function from our routes namespace that we created in the chapter before.<br /> Open <code>src/clj/foo/example/routes/blog.clj</code>. You can remove the <i>posts</i> var for now.<br /> Add the following require statement to the <i>ns</i> declaration:</p><pre><code>&#91;foo.example.db.blog :as b-db&#93;
+</code></pre><p>And change the <i>index-page</i> function to look like this:</p><pre><code>&#40;defn index-page &#91;&#93;
+  &#40;layout/render &quot;blog/index.html&quot; {:posts &#40;b-db/get-posts&#41;}&#41;&#41;
+</code></pre><p>As you can see we are calling our newly created function instead of referring to the var as we did before.</p><p>Switch to the browser and refresh the page. The content should look like this:</p><p><img src="/img/model-01.png" alt="Dynamic Posts Page" /></p><p>Also please note that no JVM restart is necessary here. During development closp will pick up changes and apply them accordingly, most of the times without manual interaction.</p>
+
+    <div id="prev-next">
+        
+        <a href="/pages/new-template/">&laquo; Creating a new template</a>
+        
+        
+        
+    </div>
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="/pages/closp-intro/">Getting Started with Clojure Web Development</a></li>
+                    
+                    <li><a href="/pages/new-router/">Creating a new router</a></li>
+                    
+                    <li><a href="/pages/new-template/">Creating a new template</a></li>
+                    
+                    <li><a href="/pages/new-model/">Creating a new model</a></li>
+                    
+                </ul>
+                
+                
+            </div>
+        </div>
+    </div>
+    <footer>Copyright &copy;  Sven Richter
+        <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p></footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>
