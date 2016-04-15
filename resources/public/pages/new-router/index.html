@@ -51,7 +51,7 @@
         <h2>Creating a new router</h2>
     </div>
     
-    <h2><a name="router&#95;-&#95;controller"></a>Router - Controller</h2><p>Closp uses <a href='https://github.com/weavejester/compojure'>compojure</a> as its routing library.<br /> We will create now something that acts as the controller according to the MVC principle. To do so add a new file in <code>src/clj/foo/example/routes</code> named <i>blog.clj</i>.</p><h3><a name="namespace&#95;declaration"></a>Namespace declaration</h3>Inside <i>blog.clj</i> add the follwing lines:<pre><code>&#40;ns foo.example.routes.blog
+    <h2><a name="router&#95;-&#95;controller"></a>Router - Controller</h2><p>Closp uses <a href='https://github.com/weavejester/compojure'>compojure</a> as its routing library.<br /> We will create now something that acts as the controller according to the MVC principle. To do so add a new file in  <code>src/clj/foo/example/routes</code> named <i>blog.clj</i>.</p><h3><a name="namespace&#95;declaration"></a>Namespace declaration</h3>Inside <i>blog.clj</i> add the follwing lines:<pre><code>&#40;ns foo.example.routes.blog
   &#40;:require &#91;compojure.core :refer &#91;routes GET&#93;&#93;
             &#91;ring.util.response :refer &#91;response&#93;&#93;&#41;&#41;
 </code></pre><p>This creates a new namespace and requires the utilities needed to generate templates.<br /></p><h3><a name="routes&#95;definition"></a>Routes definition</h3>Then we will create a routes definition and we start with a simple <code>GET</code> request:<pre><code>&#40;defn blog-routes &#91;&#93;
@@ -76,6 +76,10 @@
         <a href="/pages/closp-intro/">&laquo; Getting Started with Clojure Web Development</a>
         
         
+        ||
+        
+        
+        <a href="/pages/new-template/">Creating a new template &raquo;</a>
         
     </div>
 </div>
@@ -90,6 +94,8 @@
                     <li><a href="/pages/closp-intro/">Getting Started with Clojure Web Development</a></li>
                     
                     <li><a href="/pages/new-router/">Creating a new router</a></li>
+                    
+                    <li><a href="/pages/new-template/">Creating a new template</a></li>
                     
                 </ul>
                 

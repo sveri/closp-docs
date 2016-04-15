@@ -5,7 +5,8 @@
 ## Router - Controller
 
 Closp uses [compojure](https://github.com/weavejester/compojure) as its routing library.  
-We will create now something that acts as the controller according to the MVC principle. To do so add a new file in `src/clj/foo/example/routes` named _blog.clj_.
+We will create now something that acts as the controller according to the MVC principle. To do so add a new file in 
+`src/clj/foo/example/routes` named _blog.clj_.
 
 ### Namespace declaration
 Inside _blog.clj_ add the follwing lines:
