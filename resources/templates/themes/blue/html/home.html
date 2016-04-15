@@ -1,0 +1,31 @@
+{% extends "/html/base.html" %}
+{% block content %}
+
+Closp is a leiningen template that generates everything you need to get started with clojure web development.
+
+<br >
+<br >
+
+<ol id="links">{% for page in sidebar-pages %}
+    <li><a href="{{page.uri}}">{{page.title}}</a></li>
+    {% endfor %}
+</ol>
+
+<div id="post">
+    {% include "/html/post-content.html" %}
+    {% if disqus? %}
+    <div id="comments">
+        <a href="{{post.uri}}#disqus_thread">View Comments</a>
+    </div>
+    {% endif %}
+
+    <div id="prev-next">
+        {% if post.prev %}
+        <a href="{{post.prev.uri}}">&laquo; {{post.prev.title}}</a>
+        {% endif %}
+        {% if post.next %}
+        <a class="right" href="{{post.next.uri}}">{{post.next.title}} &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
