@@ -1,6 +1,6 @@
 {:title "Creating a new model"
  :layout :page
- :page-index 4}
+ :page-index 400}
 
 ## Model
 

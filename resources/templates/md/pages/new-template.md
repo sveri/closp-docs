@@ -1,6 +1,6 @@
 {:title "Creating a new template"
  :layout :page
- :page-index 2}
+ :page-index 300}
 
 ## Template - View
 
