@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>Closp Documentation: Writing to database</title>
+    <title>Closp Documentation: Create Post</title>
     <link rel="canonical" href="http://closp.net/pages/create-post/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
@@ -68,7 +68,7 @@
                 
 <div id="custom-page">
     <div id="page-header">
-        <h2>Writing to database</h2>
+        <h2>Create Post</h2>
     </div>
     
     <p>In the last chapter we read our data from the database. Now we will create a simple form to add new blog posts.</p><h2><a name="create&#95;post"></a>Create Post</h2><p>Open <i>blog.clj</i> in <code>foo.example.db</code>. We will add two new functions to create and update posts:</p><pre><code>&#40;defn create-post &#91;m&#93;
@@ -76,20 +76,22 @@
                  &#40;merge {:created&#95;at &#40;quot &#40;System/currentTimeMillis&#41; 1000&#41;}&#41;&#41;&#93;
     &#40;insert post &#40;values data&#41;&#41;&#41;&#41;
 </code></pre><p>Also you will have to update the require section of that namespace because of the new functions that we just added: </p><pre><code>&#91;korma.core :refer &#91;select insert values&#93;&#93;
-</code></pre><p>Next we have to update our routes file. Open <i>blog.clj</i> in <code>foo.example.routes</code> and add the following code:</p><pre><code>&#40;defn create-page &#91;&#93;
-  &#40;layout/render &quot;blog/create.html&quot;&#41;&#41;
+</code></pre><p>Next we have to update our routes file. Open <i>blog.clj</i> in <code>foo.example.routes</code> and add the following code:</p><pre><code>&#40;defn create-post-page &#91;&#93;
+  &#40;layout/render &quot;blog/create-post.html&quot;&#41;&#41;
 
-&#40;defn create &#91;title content&#93;
+&#40;defn create-post &#91;title content&#93;
   &#40;b-db/create-post {:title title :content content}&#41;
   &#40;resp/redirect &quot;/blog&quot;&#41;&#41;
 </code></pre><p>We also have to update the <i>require</i> part of the routes namespace to include the <i>resp</i> directive and <i>POST</i> function:</p><pre><code>&#40;:require &#91;compojure.core :refer &#91;routes GET POST PUT&#93;&#93;
             &#91;foo.example.db.blog :as b-db&#93;
             &#91;foo.example.layout :as layout&#93;
             &#91;ring.util.response :as resp&#93;&#41;
-</code></pre><p>And finally we will add the <i>create.html</i> file in <code>resources/templates/blog</code> which contains a very basic form to add the title and the content:</p><pre><code>{% extends &quot;templates/base.html&quot; %}
+</code></pre><p>Next update the routes function and add these two routes:</p><pre><code>&#40;GET &quot;/post/create&quot; &#91;&#93; &#40;create-post-page&#41;&#41;
+&#40;POST &quot;/post&quot; &#91;title content&#93; &#40;create-post title content&#41;&#41;
+</code></pre><p>And finally we will add the <i>create-post.html</i> file in <code>resources/templates/blog</code> which contains a very basic form to add the title and the content:</p><pre><code>{% extends &quot;templates/base.html&quot; %}
 {% block content %}
 
-&lt;form action=&quot;/blog&quot; method=&quot;post&quot;&gt;
+&lt;form action=&quot;/post&quot; method=&quot;post&quot;&gt;
     &lt;input name=&quot;&#95;&#95;anti-forgery-token&quot; type=&quot;hidden&quot; value=&quot;{{af-token}}&quot;/&gt;
 
     &lt;div class=&quot;form-group&quot;&gt;
@@ -113,13 +115,17 @@
 &lt;/form&gt;
 
 {% endblock %}
-</code></pre><p>If you followed all the steps you should switch to your REPL now and run:</p><blockquote><p> (reload) </p></blockquote><p>This is necessary because we added a route and for closp to pick it up we have to reload all namespaces.</p><p>When you are done the form should look like this:</p><p><img src="/img/create-post-01.png" alt="Create Post Form" /></p>
+</code></pre><p>Please note the hidden <em>__anti-forgery-token_</em> input field. It is needed for every POST / PUT / DELETE request and protects you from cross site request forgery. It is automatically available in every selmer template that you render with the <i>layout/render</i> function.</p><p>If you followed all the steps you should switch to your REPL now and run:</p><blockquote><p> (reload) </p></blockquote><p>This is necessary because we added a route and for closp to pick it up we have to reload all namespaces.</p><p>When you are done the form at: <a href="http://localhost:3000/post/create">http://localhost:3000/post/create</a> should look like this:</p><p><img src="/img/create-post-01.png" alt="Create Post Form" /></p>
 
     <div id="prev-next">
         
         <a href="/pages/new-model/">&laquo; Creating a new model</a>
         
         
+        ||
+        
+        
+        <a href="/pages/update-post/">Update Post &raquo;</a>
         
     </div>
 </div>
@@ -139,7 +145,9 @@
                     
                     <li><a href="/pages/new-model/">Creating a new model</a></li>
                     
-                    <li><a href="/pages/create-post/">Writing to database</a></li>
+                    <li><a href="/pages/create-post/">Create Post</a></li>
+                    
+                    <li><a href="/pages/update-post/">Update Post</a></li>
                     
                 </ul>
                 

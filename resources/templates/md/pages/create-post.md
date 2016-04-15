@@ -1,4 +1,4 @@
-{:title "Writing to database"
+{:title "Create Post"
  :layout :page
  :page-index 500}
 
@@ -25,10 +25,10 @@ that we just added:
 Next we have to update our routes file. Open _blog.clj_ in `foo.example.routes` and add the following code:
 
 ```
-(defn create-page []
-  (layout/render "blog/create.html"))
+(defn create-post-page []
+  (layout/render "blog/create-post.html"))
 
-(defn create [title content]
+(defn create-post [title content]
   (b-db/create-post {:title title :content content})
   (resp/redirect "/blog"))
 ```
@@ -42,13 +42,21 @@ We also have to update the _require_ part of the routes namespace to include the
             [ring.util.response :as resp])
 ```
 
-And finally we will add the _create.html_ file in `resources/templates/blog` which contains a very basic form to add the title and the content:
+Next update the routes function and add these two routes:
+
+
+```
+(GET "/post/create" [] (create-post-page))
+(POST "/post" [title content] (create-post title content))
+```
+
+And finally we will add the _create-post.html_ file in `resources/templates/blog` which contains a very basic form to add the title and the content:
 
 ```
 {% extends "templates/base.html" %}
 {% block content %}
 
-<form action="/blog" method="post">
+<form action="/post" method="post">
     <input name="__anti-forgery-token" type="hidden" value="{{af-token}}"/>
 
     <div class="form-group">
@@ -74,12 +82,16 @@ And finally we will add the _create.html_ file in `resources/templates/blog` whi
 {% endblock %}
 ```
 
+Please note the hidden *__anti-forgery-token_* input field. It is needed for every POST / PUT / DELETE request
+and protects you from cross site request forgery. It is automatically available in every selmer template that
+you render with the _layout/render_ function.
+
 If you followed all the steps you should switch to your REPL now and run:
 
 > (reload)
 
 This is necessary because we added a route and for closp to pick it up we have to reload all namespaces.
 
-When you are done the form should look like this:
+When you are done the form at: <http://localhost:3000/post/create> should look like this:
 
 ![Create Post Form](/img/create-post-01.png)
