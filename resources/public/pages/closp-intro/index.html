@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Closp Documentation: Getting Started with Clojure Web Development</title>
+    <link rel="canonical" href="http://closp.net/pages/closp-intro/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/default.min.css">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Closp Documentation</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/">Home</a></li>
+                <li
+                ><a href="/archives/">Archives</a></li>
+                
+                <li><a href="/feed.xml">RSS</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="custom-page">
+    <div id="page-header">
+        <h2>Getting Started with Clojure Web Development</h2>
+    </div>
+    
+    <h2><a name="prerequisites"></a>Prerequisites</h2><p>To follow this tutorial you need to have installed:</p><ul><li>A JDK (Oracle, OpenJDK and IBM JDK > 1.6 are supported)</li><li>Set the path to include the <code>bin</code> folder of the JDK</li><li>Set the JAVA_HOME variable to point to your JDK</li><li>Leiningen version > 2.5 - <a href="http://leiningen.org/#install">http://leiningen.org/#install</a> (follow the instructions for a correct installation) </li></ul><h2><a name="getting&#95;started"></a>Getting started</h2><p>Open your command line and switch to a folder of your choice. Then execute the following commands:</p><blockquote><p> lein new closp <i>project-name</i> -n <i>foo.example</i> <br /> cd <i>project-name</i>  <br /> lein migrate <br /> lein repl <br /> in the repl enter: <code>&#40;start-dev-system&#41;</code> <br /> lein figwheel (open a new command line for this, as <code>lein repl</code> will keep the existing one busy) </p></blockquote><h2><a name="explanation"></a>Explanation</h2><h3><a name="lein&#95;new&#95;closp&#95;<code>project-name</code>-n&#95;<code>foo.example</code>"></a>lein new closp <code>project-name</code>-n <code>foo.example</code></h3><p>This creates a new clojure application in the folder <code>project-name</code>. It will download all the necessary files and create the appropriate folder structure.<br /></p><h3><a name="lein&#95;migrate"></a>lein migrate</h3><p>This will migrate the existing database files into a h2 database.<br /> The database files are stored in: <code>env/dev/entities</code>.<br /> And the new database will be created in: <code>db/</code>.</p><h3><a name="lein&#95;repl"></a>lein repl</h3><p>This will start a new REPL in your command line. After the REPL is up enter <code>&#40;start-dev-system&#41;</code> to start  the web server on port <i>3000</i>.<br /> Your web application is now available at: <a href="http://localhost:3000/">http://localhost:3000/</a>.</p><h3><a name="lein&#95;figwheel"></a>lein figwheel</h3><p>This command compiles the clojurescript files and opens a websocket to the browser. After switching to <a href="http://localhost:3000/example">http://localhost:3000/example</a> you can see the page that serves the generated javascript on the example page.</p><h2><a name="project&#95;structure"></a>Project Structure</h2><pre><code class="bash">|-- db
+|-- env
+|   |-- dev
+|   |   |-- cljs - cljs files for development
+|   |   |-- entities - entity descriptions for closp-crud
+|-- integtest
+|   |-- clj - selenium web tests
+|-- resources
+|   |-- sqlite - sqlite database migrations files
+|   |-- public
+|   |   |-- css
+|   |   |-- img
+|   |   |-- js
+|   |-- templates - selmer html templates
+|   |-- closp.edn - config file for closp
+|   |-- closp-crud.edn - config file for closp-crud
+|   |-- joplin.edn - config file for joplin &#40;database migration&#41;
+|-- src
+|   |-- clj - clojure source files
+|   |-- cljc - clojure reader conditional source files
+|   |-- cljs - clojurescript source files
+|-- test - unit tests
+</code></pre><p>Thats it, you can start coding now.</p>
+
+    <div id="prev-next">
+        
+        
+        
+        <a href="/pages/new-router/">Creating a new router &raquo;</a>
+        
+    </div>
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="/pages/closp-intro/">Getting Started with Clojure Web Development</a></li>
+                    
+                    <li><a href="/pages/new-router/">Creating a new router</a></li>
+                    
+                </ul>
+                
+                
+            </div>
+        </div>
+    </div>
+    <footer>Copyright &copy;  Sven Richter
+        <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p></footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>
