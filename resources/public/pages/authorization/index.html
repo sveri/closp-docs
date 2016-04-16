@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>Closp Documentation: Creating a new router</title>
-    <link rel="canonical" href="http://closp.net/pages/new-router/">
+    <title>Closp Documentation: Authorization</title>
+    <link rel="canonical" href="http://closp.net/pages/authorization/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
           type='text/css'>
@@ -68,38 +68,32 @@
                 
 <div id="custom-page">
     <div id="page-header">
-        <h2>Creating a new router</h2>
+        <h2>Authorization</h2>
     </div>
     
-    <h2><a name="router&#95;-&#95;controller"></a>Router - Controller</h2><p>Closp uses <a href='https://github.com/weavejester/compojure'>compojure</a> as its routing library.<br /> We will create now something that acts as the controller according to the MVC principle. To do so add a new file in  <code>src/clj/foo/example/routes</code> named <i>blog.clj</i>.</p><h3><a name="namespace&#95;declaration"></a>Namespace declaration</h3>Inside <i>blog.clj</i> add the follwing lines:<pre><code>&#40;ns foo.example.routes.blog
-  &#40;:require &#91;compojure.core :refer &#91;routes GET&#93;&#93;
-            &#91;ring.util.response :refer &#91;response&#93;&#93;&#41;&#41;
-</code></pre><p>This creates a new namespace and requires the utilities needed to generate templates.<br /></p><h3><a name="routes&#95;definition"></a>Routes definition</h3>Then we will create a routes definition and we start with a simple <code>GET</code> request:<pre><code>&#40;defn blog-routes &#91;&#93;
-  &#40;routes
-    &#40;GET &quot;/blog&quot; &#91;&#93; &#40;index-page&#41;&#41;&#41;&#41;
-</code></pre><p>The routes definition defines an <code>/blog</code> uri that will return our blog index page.<br /></p><ul><li>GET - the first statement defines the type of the route (POST / PUT / DELETE / ...)</li><li>"/blog" - the second statement defines the URI of the rout</li><li>[] - the third statement defines the parameters of that request, which are empty in this case</li><li>(index-page) - and the last statement is the function to execute when a requset on "/blog" comes in.</li></ul><h3><a name="render&#95;function"></a>Render function</h3><p>Finally we add a function that returns something. To do so add the following code above the routes definition:</p><pre><code>&#40;defn index-page &#91;&#93;
-  &#40;response {:foo :bar}&#41;&#41;
-</code></pre><p>This will return a transit formatted message which I will explain later.</p><h3><a name="add&#95;routes&#95;to&#95;handler"></a>Add routes to handler</h3><p>First you will need to import your routes file in the handler. Open <code>src/clj/foo/example/components/handler.clj</code>. Add a new require statement there: </p><pre><code>&#91;foo.example.routes.blog :refer &#91;blog-routes&#93;&#93;
-</code></pre><p>now search for the <code>get-handler</code> function and the comment: <i>;; add your application routes here</i>.<br /> It will look similar to this:</p><pre><code>&#40;defn get-handler &#91;config locale&#93;
-  &#40;-&gt; &#40;app-handler
-        &#40;into &#91;&#93; &#40;concat &#40;when &#40;:registration-allowed? config&#41; &#91;&#40;registration-routes config&#41;&#93;&#41;
-                         ;; add your application routes here
-                         &#91;&#40;cc-routes config&#41; home-routes &#40;user-routes config&#41; base-routes&#93;&#41;&#41;
-        ;; add custom middleware here
+    <p>Authorization is managed by two different things.</p><ol><li>Buddy - which is a security library and provides the middleware to procees authorization information</li><li>A self implemented, very basic role system</li></ol><p>Both is active after the application was created.</p><p>You can find the documentation here: <a href="https://funcool.github.io/buddy-auth/latest/#access-rules">https://funcool.github.io/buddy-auth/latest/#access-rules</a>. The rules are defined in <i>auth.clj</i> in <code>src/foo/example/service</code>. This is the standard set:</p><pre><code>&#40;defn admin-access &#91;&#95;&#93; &#40;= &quot;admin&quot; &#40;sess/get :role&#41;&#41;&#41;
+&#40;defn loggedin-access &#91;&#95;&#93; &#40;some? &#40;sess/get :identity&#41;&#41;&#41;
+&#40;defn unauthorized-access &#91;&#95;&#93; true&#41;
 
-</code></pre><p>Add the <code>blog-routes</code> function:</p><pre><code>&#91;&#40;blog-routes&#41; &#40;cc-routes config&#41; home-routes &#40;user-routes config&#41; base-routes&#93;
-</code></pre><p>Finally you have to reset the web server to notify him of the new routes. To do so switch to the open REPL and execute:</p><pre><code>&#40;reset&#41;
-</code></pre><p>This will reload all namespace. Now browse to <a href="http://localhost:3000/blog">http://localhost:3000/blog</a> and you will see the following output: <blockquote><p> ["^ ","~:foo","~:bar"]  </p></blockquote>Thats it, you just created a new router and returned a request.</p>
+&#40;def rules &#91;{:pattern #&quot;&#94;/admin.&#42;&quot;
+             :handler admin-access}
+            {:pattern #&quot;&#94;/user/changepassword&quot;
+             :handler loggedin-access}
+            {:pattern #&quot;&#94;/user.&#42;&quot;
+             :handler unauthorized-access}
+            {:pattern #&quot;&#94;/&quot;
+             :handler unauthorized-access}&#93;&#41;
+</code></pre><p>Every user should have a role which is either "admin" or "none". Arbitrary other roles can be implemented at will. Every admin user has access to the /admin space of the application. Every logged in user has access to the <i>changepassword</i> section. And everything else is open for every user, no matter the status.</p>
 
     <div id="prev-next">
         
-        <a href="/pages/closp-intro/">&laquo; Getting Started with Clojure Web Development</a>
+        <a href="/pages/authentication/">&laquo; Authentication</a>
         
         
         ||
         
         
-        <a href="/pages/new-template/">Creating a new template &raquo;</a>
+        <a href="/pages/websockets/">Using Websockets &raquo;</a>
         
     </div>
 </div>
