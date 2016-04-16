@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Closp Documentation: Using Websockets</title>
+    <link rel="canonical" href="http://closp.net/pages/websockets/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/default.min.css">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+
+    <!-- Piwik -->
+    <script type="text/javascript">
+      var _paq = _paq || [];
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//sveri.de:5678/piwik/";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', 2]);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+        <noscript><p><img src="//sveri.de:5678/piwik/piwik.php?idsite=2" style="border:0;" alt="" /></p></noscript>
+        <!-- End Piwik Code -->
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Closp Documentation</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/">Home</a></li>
+                <li
+                ><a href="/archives/">Archives</a></li>
+                
+                <li><a href="/feed.xml">RSS</a></li>
+            </ul>
+            <a href="https://github.com/sveri/closp">
+                <img style="position: absolute; top: 0; right: 0; border: 0; height: 90px;"
+                     src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67"
+                     alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="custom-page">
+    <div id="page-header">
+        <h2>Using Websockets</h2>
+    </div>
+    
+    <p>In this chapter I will show you how to add websockets to a closp application and how to use them bidirectional.</p><h2><a name="libraries"></a>Libraries</h2><p>First we will add two new libraries to enable websockets support. Put these into the <i>:dependencies</i> section of your <i>project.clj</i></p><ul><li>[com.taoensso/sente "1.8.1"]</li><li>[org.clojure/core.match "0.3.0-alpha4"]</li></ul><p>core.match is used for dispatching on the event types later.</p><p>Exit any REPL that you had open and also stop figwheel. After adding the dependencies you have to start both again in a command line:</p><blockquote><p> lein repl  lein figwheel </p></blockquote><p>This is necessary to pick up new dependencies.</p><h2><a name="component"></a>Component</h2><p>To make use of websockets we will have to add a new component on the backend side. It is responsible for starting and stopping them. Create a new file <i>ws.clj</i> in <code>src/foo/example/components</code> with the following content:</p><pre><code>&#40;ns foo.example.components.ws
+  &#40;:require &#91;taoensso.sente :as sente&#93;
+            &#91;taoensso.sente.server-adapters.http-kit :refer &#91;sente-web-server-adapter&#93;&#93;
+            &#91;com.stuartsierra.component :as component&#93;&#41;&#41;
+
+&#40;defrecord Websockets &#91;&#93;
+  component/Lifecycle
+  &#40;start &#91;component&#93;
+      &#40;assoc component :websockets &#40;sente/make-channel-socket! sente-web-server-adapter {}&#41;&#41;&#41;
+  &#40;stop &#91;component&#93; component&#41;&#41;
+
+&#40;defn new-websockets &#91;&#93;
+  &#40;map-&gt;Websockets {}&#41;&#41;
+</code></pre><p>Next we will have to make it available to the other components that want to use websockets. For this open <i>components.clj</i> in <code>src/foo/example/components</code>. You will see other components defined already, add this line:</p><blockquote><p> :websockets (ws/new-websockets) </p></blockquote><p>above the <i>:db</i> component. Then change the handler component and add the websockets reference:</p><blockquote><p> :handler (component/using (new-handler) [:config :locale :websockets]) </p></blockquote><p>And finally add add the require statement:</p><blockquote><p> [foo.example.components.ws :as ws] </p></blockquote><p>Now we have to go through the call chain and add the <i>ws</i> everywhere it needs to be:</p><blockquote><p> <i>handler.clj</i> in <code>src/foo/example/components</code> - add the <code>websockets</code> argument to the <i>defrecord</i>  add the <code>websockets</code> parameter to the <code>get-handler</code> call in the <i>defrecord</i>  add the <code>websockets</code> as parameter to the <code>get-handler</code> method as parameter </p></blockquote><p>It should look like this now:</p><pre><code>&#40;defn get-handler &#91;config locale websockets&#93;
+  &#40;-&gt; &#40;app-handler
+        &#40;into &#91;&#93; &#40;concat &#40;when &#40;:registration-allowed? config&#41; &#91;&#40;registration-routes config&#41;&#93;&#41;
+                         ;; add your application routes here
+                         &#91;&#40;blog-routes&#41; &#40;cc-routes config&#41; home-routes &#40;user-routes config&#41; base-routes&#93;&#41;&#41;
+        ;; add custom middleware here
+        :middleware &#40;load-middleware config &#40;:tconfig locale&#41;&#41;
+        :ring-defaults &#40;mk-defaults false&#41;
+        ;; add access rules here
+        :access-rules &#91;&#93;
+        ;; serialize/deserialize the following data formats
+        ;; available formats:
+        ;; :json :json-kw :yaml :yaml-kw :edn :yaml-in-html
+        :formats &#91;:json-kw :edn :transit-json&#93;&#41;
+      ; Makes static assets in $PROJECT&#95;DIR/resources/public/ available.
+      &#40;wrap-file &quot;resources&quot;&#41;
+      ; Content-Type, Content-Length, and Last Modified headers for files in body
+      &#40;wrap-file-info&#41;&#41;&#41;
+
+&#40;defrecord Handler &#91;config locale websockets&#93;
+  comp/Lifecycle
+  &#40;start &#91;comp&#93;
+    &#40;assoc comp :handler &#40;get-handler &#40;:config config&#41; locale websockets&#41;&#41;&#41;
+  &#40;stop &#91;comp&#93;
+    &#40;assoc comp :handler nil&#41;&#41;&#41;
+
+&#40;defn new-handler &#91;&#93;
+  &#40;map-&gt;Handler {}&#41;&#41;
+</code></pre><h2><a name="defining&#95;routes"></a>Defining Routes</h2><p>We need to add two routes as websocket endpoints. For this create a new source file <i>ws.clj</i> in <code>src/foo/example/routes</code> with the following content:</p><pre><code>&#40;ns foo.example.routes.ws
+  &#40;:require &#91;compojure.core :refer &#91;routes GET POST&#93;&#93;&#41;&#41;
+
+&#40;defn ws-routes &#91;{:keys &#91;websockets&#93;}&#93;
+  &#40;routes &#40;GET &quot;/ws&quot; req &#40;&#40;:ajax-get-or-ws-handshake-fn websockets&#41; req&#41;&#41;
+          &#40;POST &quot;/ws&quot; req &#40;&#40;:ajax-post-fn websockets&#41; req&#41;&#41;&#41;&#41;
+</code></pre><p>Also we have to register the routes in the handler. Reopen the <i>handler.clj</i> file from the last paragraph. Require some more namespaces:</p><blockquote><p> [compojure.core :refer [defroutes routes]]  [foo.example.routes.ws :refer [ws-routes]]  [ring.middleware.params :refer [wrap-params]]  [ring.middleware.keyword-params :refer [wrap-keyword-params]] </p></blockquote><p>Also add these two functions above the <code>get-handler</code> function:</p><pre><code>&#40;defn- pre-init &#91;middleware&#93;
+  &#40;let &#91;proxy &#40;middleware &#40;fn &#91;req&#93; &#40;&#40;:route-handler req&#41; req&#41;&#41;&#41;&#93;
+    &#40;fn &#91;handler&#93;
+      &#40;fn &#91;request&#93;
+        &#40;proxy &#40;assoc request :route-handler handler&#41;&#41;&#41;&#41;&#41;&#41;
+
+&#40;defn wrap-routes
+  &quot;Apply a middleware function to routes after they have been matched.&quot;
+  &#40;&#91;handler middleware&#93;
+   &#40;let &#91;middleware &#40;pre-init middleware&#41;&#93;
+     &#40;fn &#91;request&#93;
+       &#40;let &#91;mw &#40;:route-middleware request identity&#41;&#93;
+         &#40;handler &#40;assoc request :route-middleware &#40;comp middleware mw&#41;&#41;&#41;&#41;&#41;&#41;&#41;
+  &#40;&#91;handler middleware &amp; args&#93;
+   &#40;wrap-routes handler #&#40;apply middleware % args&#41;&#41;&#41;&#41;
+</code></pre><p>And finally change the <code>get-handler</code> function to look like that:</p><pre><code>&#40;defn get-handler &#91;config locale websockets&#93;
+  &#40;routes
+    &#40;-&gt; &#40;ws-routes websockets&#41;
+        &#40;wrap-routes wrap-params&#41;
+        &#40;wrap-routes wrap-keyword-params&#41;&#41;
+    &#40;-&gt; &#40;app-handler
+         &#40;into &#91;&#93; &#40;concat &#40;when &#40;:registration-allowed? config&#41; &#91;&#40;registration-routes config&#41;&#93;&#41;
+                          ;; add your application routes here
+                          &#91;&#40;ws-routes websockets&#41; &#40;blog-routes&#41; &#40;cc-routes config&#41; home-routes &#40;user-routes config&#41; base-routes&#93;&#41;&#41;
+         ;; add custom middleware here
+         :middleware &#40;load-middleware config &#40;:tconfig locale&#41;&#41;
+         :ring-defaults &#40;mk-defaults false&#41;
+         ;; add access rules here
+         :access-rules &#91;&#93;
+         ;; serialize/deserialize the following data formats
+         ;; available formats:
+         ;; :json :json-kw :yaml :yaml-kw :edn :yaml-in-html
+         :formats &#91;:json-kw :edn :transit-json&#93;&#41;
+       ; Makes static assets in $PROJECT&#95;DIR/resources/public/ available.
+       &#40;wrap-file &quot;resources&quot;&#41;
+       ; Content-Type, Content-Length, and Last Modified headers for files in body
+       &#40;wrap-file-info&#41;&#41;&#41;&#41;
+</code></pre>As you may have noticed we separated the websocket routes from the other existing routes. This is because the websockets need a different set of middleware applied than the <i>standard</i> routes.<p>Switch to the REPL and execute:</p><blockquote><p> (reload) </p></blockquote><p>to notify closp of the new routes. If you followed the steps there should be no compile error here.<h2><a name="client&#95;side"></a>Client Side</h2></p><p>Now we will establish a connection from client side to the websocket routes.</p><p>Open <i>core.cljs</i> in <code>cljs/foo/example</code>. Delete all the source code and replace it with this one:</p><pre><code>&#40;ns foo.example.core
+  &#40;:require &#91;reagent.core :as reagent :refer &#91;atom&#93;&#93;
+            &#91;taoensso.sente :as sente&#93;
+            &#91;foo.example.helper :as h&#93;&#41;&#41;
+
+
+&#40;defn entry &#91;&#93;
+  &#91;:div &quot;Websocket Example&quot;&#93;&#41;
+
+&#40;defn &#94;:export main &#91;&#93;
+  &#40;reagent/render-component &#40;fn &#91;&#93; &#91;entry&#93;&#41; &#40;h/get-elem &quot;app&quot;&#41;&#41;&#41;
+</code></pre><p>Now browse to <a href="http://localhost:3000/example">http://localhost:3000/example</a> it should look like this:</p><p><img src="/img/websocket-01.png" alt="WS example" /></p><p>Next add the websocket initialization and event handling for sente to that file:</p><pre><code>&#40;def router&#95; &#40;atom nil&#41;&#41;
+
+&#40;defmulti event-msg-handler &#40;fn &#91;event&#93; &#40;:id event&#41;&#41;&#41;
+
+&#40;defmethod event-msg-handler :default
+  &#91;{:keys &#91;event&#93;}&#93;
+  &#40;println &quot;Unhandled event: %s&quot; event&#41;&#41;
+
+&#40;defmethod event-msg-handler :chsk/recv
+  &#91;{:keys &#91;?data&#93;}&#93;
+  &#40;println ?data&#41;&#41;
+
+&#40;defn start-router! &#91;&#93;
+  ;ws-map contains these keys: chsk ch-recv send-fn state
+  &#40;let &#91;ws-map &#40;sente/make-channel-socket! &quot;/ws&quot;
+                                    {:type :auto}&#41;&#93; ; e/o #{:auto :ajax :ws}
+
+    &#40;reset! router&#95; &#40;sente/start-chsk-router! &#40;:ch-recv ws-map&#41; &#40;fn &#91;event&#93; &#40;event-msg-handler event&#41;&#41;&#41;&#41;
+    ws-map&#41;&#41;
+</code></pre><p>Also call the <code>start-router!</code> function from the <code>main</code> function. If you switch to the webpage and open the developer console you should see output like this:</p><blockquote><p> Unhandled event: %s [:chsk/state {:type :ws, :open? true, :uid :taoensso.sente/nil-uid, :csrf-token nil, :first-open? true}]  core.cljs:147 Unhandled event: %s [:chsk/handshake [:taoensso.sente/nil-uid nil]] </p></blockquote><p>after refreshing the page.</p><p>These are the messages you get after establishing a websocket connection from client to the server.</p><p>And finally we will do the same on backend side.  Reopen <i>ws.clj</i> from <code>src/foo/example/routes</code> and change it to look like this:</p><pre><code>&#40;ns foo.example.routes.ws
+  &#40;:require &#91;compojure.core :refer &#91;routes GET POST&#93;&#93;
+            &#91;taoensso.sente :as sente&#93;&#41;&#41;
+
+
+&#40;defmulti event-msg-handler &#40;fn &#91;event&#93; &#40;:id event&#41;&#41;&#41;
+
+&#40;defmethod event-msg-handler :default
+  &#91;{:keys &#91;event&#93;}&#93;
+  &#40;println &quot;Unhandled event: %s&quot; event&#41;&#41;
+
+&#40;defmethod event-msg-handler :chsk/recv
+  &#91;{:keys &#91;?data&#93;}&#93;
+  &#40;println ?data&#41;&#41;
+
+
+&#40;defn start-listening &#91;websockets&#93;
+  &#40;sente/start-chsk-router! &#40;:ch-recv websockets&#41; &#40;fn &#91;event&#93; &#40;event-msg-handler event&#41;&#41;&#41;&#41;
+
+&#40;defn ws-routes &#91;{:keys &#91;websockets&#93;}&#93;
+  &#40;start-listening websockets&#41;
+  &#40;routes &#40;GET &quot;/ws&quot; req &#40;&#40;:ajax-get-or-ws-handshake-fn websockets&#41; req&#41;&#41;
+          &#40;POST &quot;/ws&quot; req &#40;&#40;:ajax-post-fn websockets&#41; req&#41;&#41;&#41;&#41;
+</code></pre><p>We added the same event handling method as on client side and can act as well as send messages.</p><p>To send messages you have to use the <code>send-fn</code> that was returned from the <code>start-chsk-router!</code> like this:</p><pre><code>&#40;doseq &#91;uid &#40;:any @connected-uids&#41;&#93; &#40;send-fn uid &#91;:some/namespace &quot;some message&quot;&#93;&#41;&#41;
+</code></pre><p>Where <code>connected-uids</code> is another key value pair avaible in the returned map.</p>
+
+    <div id="prev-next">
+        
+        <a href="/pages/update-post/">&laquo; Update Post</a>
+        
+        
+        
+    </div>
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="/pages/closp-intro/">Getting Started with Clojure Web Development</a></li>
+                    
+                    <li><a href="/pages/new-router/">Creating a new router</a></li>
+                    
+                    <li><a href="/pages/new-template/">Creating a new template</a></li>
+                    
+                    <li><a href="/pages/new-model/">Creating a new model</a></li>
+                    
+                    <li><a href="/pages/create-post/">Create Post</a></li>
+                    
+                    <li><a href="/pages/update-post/">Update Post</a></li>
+                    
+                    <li><a href="/pages/websockets/">Using Websockets</a></li>
+                    
+                </ul>
+                
+                
+            </div>
+        </div>
+    </div>
+    <footer>Copyright &copy;  Sven Richter
+        <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p></footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>
