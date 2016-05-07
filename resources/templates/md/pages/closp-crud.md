@@ -74,7 +74,7 @@ to this:
 And finally switch to your repl and execute: `(reset)` to notify the webserver of the changed routes.
 Afterwards open this page: <http://localhost:3000/post> and see the UI generated for the _post_ entity.
 
-## Conclusion.
+## Conclusion
 
 If you followed the documentation you will see that most what we did in the chapters: `Model, Router, Template and update post`
 can be done in a much faster way.
