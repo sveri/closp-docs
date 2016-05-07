@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Closp Documentation: Internationalization</title>
+    <link rel="canonical" href="http://closp.net/pages/internationalization/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/default.min.css">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+
+    <!-- Piwik -->
+    <script type="text/javascript">
+      var _paq = _paq || [];
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//sveri.de:5678/piwik/";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', 2]);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+        <noscript><p><img src="//sveri.de:5678/piwik/piwik.php?idsite=2" style="border:0;" alt="" /></p></noscript>
+        <!-- End Piwik Code -->
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Closp Documentation</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/">Home</a></li>
+                <li
+                ><a href="/archives/">Archives</a></li>
+                
+                <li><a href="/feed.xml">RSS</a></li>
+            </ul>
+            <a href="https://github.com/sveri/closp">
+                <img style="position: absolute; top: 0; right: 0; border: 0; height: 90px;"
+                     src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67"
+                     alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="custom-page">
+    <div id="page-header">
+        <h2>Internationalization</h2>
+    </div>
+    
+    <p>In this chapter I will explain how to use internationalization with closp. We use <a href="https://github.com/ptaoussanis/tower">https://github.com/ptaoussanis/tower</a> for this and everything is set up so far.</p><h2><a name="defining&#95;translations."></a>Defining translations.</h2><p>Open <code>src/clj/foo/example/components/locale.clj</code>. You will find a map similar looking to this:</p><pre><code>{:fallback-locale :en
+     :dictionary      {:en
+                       {:generic
+                        {:some&#95;error        &quot;Some error occured.&quot;
+                         :deletion&#95;canceled &quot;Deletion canceled.&quot;}
+                        :user
+                        {:email&#95;invalid           &quot;A valid email is required.&quot;
+                         :pass&#95;min&#95;length         &quot;Password must be at least 5 characters.&quot;
+                        :admin
+                        {:title &quot;User Overview&quot;}}}}</code></pre><p>The <code>:fallback-locale</code> key defines the language that should be used if a language is requested that you have no translation for. In this case it is english.</p><p>The dictionary setting defines the languages that you offer translation for. First, you provide the language, <code>:en</code> in this case and then you add the sections to which the specific translation belongs.</p><p> After that, all that is needed is a unique key and the translation: <code>:user/email&#95;invalid &quot;Invalid email&quot;</code>.</p><h2><a name="using&#95;translations"></a>Using translations</h2><p>In your code require the <code>&#91;taoensso.tower :refer &#91;t&#93;&#93;</code> namespace. Then everytime you want to use a translated string call the function like this:</p><pre><code>&#40;t locale tconfig :age&#41;</code></pre><p>Where</p><ul><li><strong>t</strong> is the function you required in the namespace<ul><li><strong>locale</strong> is the locale used for the translation</li><li><strong>tconfig</strong> is the localization component</li><li><strong>:user/email_invalid</strong> is the section/key to lookup in the translation map</li></ul></li></ul><p> In closp you can aquire the locale and tconfig by taking them from the request. So in every route definition you  can do a lookup like this:</p><pre><code> &#40;routes
+     &#40;GET &quot;/user/accountcreated&quot; req &#40;some-func &#40;:locale req&#41; &#40;:tconfig req&#41;&#41;&#41;&#41;</code></pre><p>For an extensive example look at <code>src/clj/foo/example/routes/user.clj</code>.</p>
+
+    <div id="prev-next">
+        
+        <a href="/pages/authorization/">&laquo; Authorization</a>
+        
+        
+        ||
+        
+        
+        <a href="/pages/components/">Components &raquo;</a>
+        
+    </div>
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="/pages/closp-intro/">Getting Started with Clojure Web Development</a></li>
+                    
+                    <li><a href="/pages/new-router/">Creating a new router</a></li>
+                    
+                    <li><a href="/pages/new-template/">Creating a new template</a></li>
+                    
+                    <li><a href="/pages/new-model/">Creating a new model</a></li>
+                    
+                    <li><a href="/pages/create-post/">Create Post</a></li>
+                    
+                    <li><a href="/pages/update-post/">Update Post</a></li>
+                    
+                    <li><a href="/pages/authentication/">Authentication</a></li>
+                    
+                    <li><a href="/pages/authorization/">Authorization</a></li>
+                    
+                    <li><a href="/pages/internationalization/">Internationalization</a></li>
+                    
+                    <li><a href="/pages/components/">Components</a></li>
+                    
+                    <li><a href="/pages/websockets/">Using Websockets</a></li>
+                    
+                    <li><a href="/pages/closp-crud/">Closp Crud</a></li>
+                    
+                    <li><a href="/pages/clojurescript/">Clojurescript</a></li>
+                    
+                </ul>
+                
+                
+            </div>
+        </div>
+    </div>
+    <footer>Copyright &copy;  Sven Richter
+        <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p></footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>

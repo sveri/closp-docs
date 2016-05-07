@@ -15,11 +15,9 @@ Open `src/clj/foo/example/components/locale.clj`. You will find a map similar lo
                            {:generic
                             {:some_error        "Some error occured."
                              :deletion_canceled "Deletion canceled."}
-
                             :user
                             {:email_invalid           "A valid email is required."
                              :pass_min_length         "Password must be at least 5 characters."
-
                             :admin
                             {:title "User Overview"}}}}
 

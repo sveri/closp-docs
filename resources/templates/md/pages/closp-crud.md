@@ -29,8 +29,8 @@ This describes a new entity in closp where the structure is as follows:
     - :text
     - :time
     - :boolean
-    - plus some more, but because there is no internet where I am writing this I cannot look them all up and if the post
-    goes live like this feel free to message me and remind me to complete it
+    - For a complete and current overview, please look here: <http://www.liquibase.org/documentation/column> at
+    the types section.
 - **:pk** If set to `true` it will generate a primary key description for the database
 - **:autoinc** If set to `true` this will generate an auto incremeting column in the database
 - **:null** Can be `true` or `false`, sets the column to nullable
