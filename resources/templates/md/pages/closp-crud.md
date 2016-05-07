@@ -48,8 +48,8 @@ To generate the code run:
 Afterwards you will find some new files in the appropriate places.
 
 - **Migrations** The mirgraions file will reside in `resources/migrators/[db]/{date-}post.[up|down].sql`
-- **src/foo/example/db/post.clj** The code for accessing the database
-- **src/foo/example/routes/post.clj** The code where the different routes are defined
+- **src/clj/foo/example/db/post.clj** The code for accessing the database
+- **src/clj/foo/example/routes/post.clj** The code where the different routes are defined
 - **resources/templates/post** The html templates for _post_
 
 ## What is availabe
@@ -59,7 +59,7 @@ After the generation you will be able to create, edit and delete post, all the c
 ## Activating the new routes
 
 Before you can use the _post_ entity you will have to add the new route to the handler. To do so, open:
-`src/foo/example/components/handler.clj` and add the following require statement:
+`src/clj/foo/example/components/handler.clj` and add the following require statement:
 
     [foo.example.routes.post :refer [post-routes]]
 

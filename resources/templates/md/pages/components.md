@@ -26,7 +26,7 @@ you need to shutdown the resource.
 
 ## Putting them together
 
-To integrate a component into closp please open: ´src/foo/example/components/components.clj`, require the appropriate
+To integrate a component into closp please open: ´src/clj/foo/example/components/components.clj`, require the appropriate
 namespace and add it to the dev and prod components.
 A dependency is implicitly declared like this:
 

@@ -11,7 +11,7 @@ Authorization is managed by two different things.
 Both is active after the application was created.
 
 You can find the documentation here: <https://funcool.github.io/buddy-auth/latest/#access-rules>.
-The rules are defined in _auth.clj_ in `src/foo/example/service`. This is the standard set:
+The rules are defined in _auth.clj_ in `src/clj/foo/example/service`. This is the standard set:
 
 ```
 (defn admin-access [_] (= "admin" (sess/get :role)))

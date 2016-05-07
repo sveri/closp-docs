@@ -1,75 +1,53 @@
-{:title "Components"
+{:title "Internationalization"
  :layout :page
  :page-index 1000}
 
-In this chapter I will explain what components are and how to use them.
-
-## What is it good for.
-
-Components are abstractions that put a wrapper around a stateful resource to be able to pass them around. The original
-implementation was from Stuart Sierra and there is also a talk about them on youtube from him, which is recommended
-to be watcherd.
-They also provide a way to implicitly declare a dependency tree among the statefule resources.
+In this chapter I will explain how to use internationalization with closp. We use <https://github.com/ptaoussanis/tower>
+for this and everything is set up so far.
 
 
-## Usage
+## Defining translations.
 
-Components implement the `Lifecycle` protocol which defines two methods:
+Open `src/clj/foo/example/components/locale.clj`. You will find a map similar looking to this:
 
-    (start [comp] comp)
-    (stop [comp] comp)
+    {:fallback-locale :en
+         :dictionary      {:en
+                           {:generic
+                            {:some_error        "Some error occured."
+                             :deletion_canceled "Deletion canceled."}
 
-This is all you have to implement to make use of them. In the `start` function you start up your component in whatever
-way you have to. Finally you add the resource to the component map by returning the map and associng your resource into.
-To stop the component you can access the resource by calling get on the `stop` function parameter. Here you can do whatever
-you need to shutdown the resource.
+                            :user
+                            {:email_invalid           "A valid email is required."
+                             :pass_min_length         "Password must be at least 5 characters."
 
-## Putting them together
+                            :admin
+                            {:title "User Overview"}}}}
 
-To integrate a component into closp please open: ´src/foo/example/components/components.clj`, require the appropriate
-namespace and add it to the dev and prod components.
-A dependency is implicitly declared like this:
+The `:fallback-locale` key defines the language that should be used if a language is requested that you have
+no translation for. In this case it is english.
 
-    :config (c/new-config (c/prod-conf-or-dev))
-    :db (component/using (new-db) [:config])
+The dictionary setting defines the languages that you offer translation for. First, you provide the language,
+`:en` in this case and then you add the sections to which the specific translation belongs.
 
-Here the `db` component requires the `config` component. This means that you can acces the configuration in the database
-component. Example code looks like this:
+ After that, all that is needed is a unique key and the translation: `:user/email_invalid "Invalid email"`.
 
-    (defrecord Db [config]
-      component/Lifecycle
-      (start [component]
-        (let [db-url (get-in config [:config :jdbc-url])]
-          (defdb db db-url))
-        component)
-      (stop [component] component))
+## Using translations
 
-    (defn new-db []
-      (map->Db {}))))
+In your code require the `[taoensso.tower :refer [t]]` namespace.
+Then everytime you want to use a translated string call the function like this:
 
-You call an accessor function that creates a new instance of the component. The record will be passed in the configuration
-component which can then be accessed in the `start`and `stop` functions.
+    (t locale tconfig :age)
 
-## Components that come with closp
+Where
+ - **t** is the function you required in the namespace
+ - **locale** is the locale used for the translation
+ - **tconfig** is the localization component
+ - **:user/email_invalid** is the section/key to lookup in the translation map
 
-Closp by default makes use of several components.
+ In closp you can aquire the locale and tconfig by taking them from the request. So in every route definition you
+ can do a lookup like this:
 
-### Config
+     (routes
+         (GET "/user/accountcreated" req (some-func (:locale req) (:tconfig req))))
 
-Will read the configuration from `closp.edn` and make it accessible everywhere it is needed.
-
-### Db
-
-The component that defines a connection to the database.
-
-### Locale
-
-The component that defines the internationalization properties that come with closp and can be extended by the user.
-
-### Handler
-
-The component that defines the routes and middlewares of closp.
-
-### Server
-
-The component that starts and stops the server while making use of the handler.
+For an extensive example look at `src/clj/foo/example/routes/user.clj`.

@@ -24,7 +24,7 @@ This is necessary to pick up new dependencies.
 ## Component
 
 To make use of websockets we will have to add a new component on the backend side. It is responsible for starting and stopping them.
-Create a new file _ws.clj_ in `src/foo/example/components` with the following content:
+Create a new file _ws.clj_ in `src/clj/foo/example/components` with the following content:
 
 ```
 (ns foo.example.components.ws
@@ -42,7 +42,7 @@ Create a new file _ws.clj_ in `src/foo/example/components` with the following co
   (map->Websockets {}))
   ```
 
-Next we will have to make it available to the other components that want to use websockets. For this open _components.clj_ in `src/foo/example/components`. You will see other components defined already, add this line:
+Next we will have to make it available to the other components that want to use websockets. For this open _components.clj_ in `src/clj/foo/example/components`. You will see other components defined already, add this line:
 
 > :websockets (ws/new-websockets)
 
@@ -57,7 +57,7 @@ And finally add add the require statement:
 
 Now we have to go through the call chain and add the _ws_ everywhere it needs to be:
 
-> _handler.clj_ in `src/foo/example/components` - add the `websockets` argument to the _defrecord_
+> _handler.clj_ in `src/clj/foo/example/components` - add the `websockets` argument to the _defrecord_
 > add the `websockets` parameter to the `get-handler` call in the _defrecord_
 > add the `websockets` as parameter to the `get-handler` method as parameter
 
@@ -97,7 +97,7 @@ It should look like this now:
 ## Defining Routes
 
 We need to add two routes as websocket endpoints. For this create a new source file _ws.clj_ in
-`src/foo/example/routes` with the following content:
+`src/clj/foo/example/routes` with the following content:
 
 ```
 (ns foo.example.routes.ws
@@ -226,7 +226,7 @@ after refreshing the page.
 These are the messages you get after establishing a websocket connection from client to the server.
 
 
-And finally we will do the same on backend side.  Reopen _ws.clj_ from `src/foo/example/routes` and change it to look like this:
+And finally we will do the same on backend side.  Reopen _ws.clj_ from `src/clj/foo/example/routes` and change it to look like this:
 
 ```
 (ns foo.example.routes.ws
