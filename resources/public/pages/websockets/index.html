@@ -118,22 +118,7 @@
 &#40;defn ws-routes &#91;{:keys &#91;websockets&#93;}&#93;
   &#40;routes &#40;GET &quot;/ws&quot; req &#40;&#40;:ajax-get-or-ws-handshake-fn websockets&#41; req&#41;&#41;
           &#40;POST &quot;/ws&quot; req &#40;&#40;:ajax-post-fn websockets&#41; req&#41;&#41;&#41;&#41;
-</code></pre><p>Also we have to register the routes in the handler. Reopen the <i>handler.clj</i> file from the last paragraph. Require some more namespaces:</p><blockquote><p> [compojure.core :refer [defroutes routes]]  [foo.example.routes.ws :refer [ws-routes]]  [ring.middleware.params :refer [wrap-params]]  [ring.middleware.keyword-params :refer [wrap-keyword-params]] </p></blockquote><p>Also add these two functions above the <code>get-handler</code> function:</p><pre><code>&#40;defn- pre-init &#91;middleware&#93;
-  &#40;let &#91;proxy &#40;middleware &#40;fn &#91;req&#93; &#40;&#40;:route-handler req&#41; req&#41;&#41;&#41;&#93;
-    &#40;fn &#91;handler&#93;
-      &#40;fn &#91;request&#93;
-        &#40;proxy &#40;assoc request :route-handler handler&#41;&#41;&#41;&#41;&#41;&#41;
-
-&#40;defn wrap-routes
-  &quot;Apply a middleware function to routes after they have been matched.&quot;
-  &#40;&#91;handler middleware&#93;
-   &#40;let &#91;middleware &#40;pre-init middleware&#41;&#93;
-     &#40;fn &#91;request&#93;
-       &#40;let &#91;mw &#40;:route-middleware request identity&#41;&#93;
-         &#40;handler &#40;assoc request :route-middleware &#40;comp middleware mw&#41;&#41;&#41;&#41;&#41;&#41;&#41;
-  &#40;&#91;handler middleware &amp; args&#93;
-   &#40;wrap-routes handler #&#40;apply middleware % args&#41;&#41;&#41;&#41;
-</code></pre><p>And finally change the <code>get-handler</code> function to look like that:</p><pre><code>&#40;defn get-handler &#91;config locale websockets&#93;
+</code></pre><p>Also we have to register the routes in the handler. Reopen the <i>handler.clj</i> file from the last paragraph. </p><p>Change this namespace:<br /><blockquote><p> [compojure.core :refer [defroutes routes wrap-routes]] <br /> </p></blockquote>Require some more namespaces:<br /><blockquote><p> [foo.example.routes.ws :refer [ws-routes]] <br /> [ring.middleware.params :refer [wrap-params]] <br /> [ring.middleware.keyword-params :refer [wrap-keyword-params]] <br /> </p></blockquote></p><p>And finally change the <code>get-handler</code> function to look like that:</p><pre><code>&#40;defn get-handler &#91;config locale websockets&#93;
   &#40;routes
     &#40;-&gt; &#40;ws-routes websockets&#41;
         &#40;wrap-routes wrap-params&#41;

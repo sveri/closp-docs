@@ -108,32 +108,16 @@ We need to add two routes as websocket endpoints. For this create a new source f
           (POST "/ws" req ((:ajax-post-fn websockets) req))))
 ```
 
-Also we have to register the routes in the handler. Reopen the _handler.clj_ file from the last paragraph. Require some more namespaces:
+Also we have to register the routes in the handler. Reopen the _handler.clj_ file from the last paragraph. 
 
-> [compojure.core :refer [defroutes routes]]
-> [foo.example.routes.ws :refer [ws-routes]]
-> [ring.middleware.params :refer [wrap-params]]
-> [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+Change this namespace:  
+> [compojure.core :refer [defroutes routes wrap-routes]]  
 
-Also add these two functions above the `get-handler` function:
+Require some more namespaces:  
+> [foo.example.routes.ws :refer [ws-routes]]  
+> [ring.middleware.params :refer [wrap-params]]  
+> [ring.middleware.keyword-params :refer [wrap-keyword-params]]  
 
-```
-(defn- pre-init [middleware]
-  (let [proxy (middleware (fn [req] ((:route-handler req) req)))]
-    (fn [handler]
-      (fn [request]
-        (proxy (assoc request :route-handler handler))))))
-
-(defn wrap-routes
-  "Apply a middleware function to routes after they have been matched."
-  ([handler middleware]
-   (let [middleware (pre-init middleware)]
-     (fn [request]
-       (let [mw (:route-middleware request identity)]
-         (handler (assoc request :route-middleware (comp middleware mw)))))))
-  ([handler middleware & args]
-   (wrap-routes handler #(apply middleware % args))))
-```
 
 And finally change the `get-handler` function to look like that:
 
