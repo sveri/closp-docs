@@ -1,6 +1,10 @@
 {:title "Getting Started with Clojure Web Development"
  :layout :page
  :page-index 100}
+ 
+ 
+Please be aware that this documentation is for closp version 0.2.0. In version 0.3.0 many things will change
+and the documentation will be updated soon.
 
 ## Prerequisites
 
@@ -16,7 +20,7 @@ To follow this tutorial you need to have installed:
 
 Open your command line and switch to a folder of your choice. Then execute the following commands:
 
-> lein new closp _project-name_ -n _foo.example_  
+> lein new closp _project-name_ -n _foo.example_  --template-version 0.2.0
 > cd _project-name_   
 > lein migrate  
 > lein repl  
